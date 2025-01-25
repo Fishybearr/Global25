@@ -3,7 +3,32 @@ guid: dba8285555eb36341a58529c97eae65c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black
+    second: {fileID: 2100000, guid: 386c23a3686ed4345ae62a08c1f5eeaf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BottleBase
+    second: {fileID: 2100000, guid: 450f43315a6c73047b7d3d65adf51cbc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BottleBubble
+    second: {fileID: 2100000, guid: 1719b6b2339621247bccff03f37ebfe3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Label
+    second: {fileID: 2100000, guid: 05548e8428c657e409651608ffb2311b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wand
+    second: {fileID: 2100000, guid: c3cf7105b158055438963587af75f860, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -117,7 +142,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.0025
+    globalScale: 0.25
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
