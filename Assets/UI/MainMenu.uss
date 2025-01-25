@@ -19,6 +19,7 @@
     font-size: 200%;
     -unity-font-definition: url("project://database/Assets/UI/DynaPuff-Bold.ttf?fileID=12800000&guid=9e8e6d05c101d66e1ad06f64b3f6dd34&type=3#DynaPuff-Bold");
     -unity-font-style: normal;
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .bubbleButton:hover {
