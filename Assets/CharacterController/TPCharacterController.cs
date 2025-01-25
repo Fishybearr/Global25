@@ -25,10 +25,12 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     private Camera playerCamera;
 
-   
 
+    [SerializeField]
     private bool coyoteTime = false;
-    private bool canCoyote = true;
+
+    [SerializeField]
+    private bool canCoyote = false;
 
     [SerializeField]
     float coyoteTimeDelay = .2f;
@@ -47,6 +49,9 @@ public class TPCharacterController : MonoBehaviour
 
     [SerializeField]
     int playerHealth = 5;
+
+    public int colletablCount;
+
 
     private void Awake()
     {
@@ -83,7 +88,7 @@ public class TPCharacterController : MonoBehaviour
         {
             if (canCoyote)
             {
-                canCoyote = false;
+                //canCoyote = false;
                 StartCoroutine(CoyoteTimer());
             }
 
@@ -146,14 +151,25 @@ public class TPCharacterController : MonoBehaviour
     {
        
         canCoyote = false;
+        //coyoteTime = false;
 
         //Debug.Log("Jumped Pressed");
-        if (IsGrounded() || coyoteTime)
+        if (IsGrounded())
+        {
+            coyoteTime = false;
+
+            forceDirection += Vector3.up * jumpForce;
+            StartCoroutine(FallFaster());
+        }
+        else if(!IsGrounded() && coyoteTime) 
         {
             coyoteTime = false;
             forceDirection += Vector3.up * jumpForce;
             StartCoroutine(FallFaster());
         }
+
+        //coyoteTime = false;
+        canCoyote = false;
     }
 
     private void DoAttack(InputAction.CallbackContext obj)
@@ -185,6 +201,7 @@ public class TPCharacterController : MonoBehaviour
         else 
         {
             //Debug.Log("Not Grounded");
+            //coyoteTime = true;
             return false;
         }
     }
@@ -194,9 +211,13 @@ public class TPCharacterController : MonoBehaviour
     //This will have to be checked in some sort of update function to always keep track of if the player is on the ground or not
     IEnumerator CoyoteTimer()
     {
-        coyoteTime = true;
+        if (canCoyote) 
+        {
+            coyoteTime = true;
+        }
+        
         yield return new WaitForSeconds(coyoteTimeDelay);
-        coyoteTime = false;
+        //coyoteTime = false;
     }
 
     //TODO: Tweak this to actually work
@@ -205,7 +226,7 @@ public class TPCharacterController : MonoBehaviour
         yield return new WaitForSeconds(fasterFallDelay);
 
         //rb.linearDamping = .25f;
-        Physics.gravity = new Vector3(0, -9.8f * 2.0f, 0);
+        Physics.gravity = new Vector3(0, -9.8f * 3.0f, 0);
 
     }
 
