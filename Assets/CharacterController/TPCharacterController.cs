@@ -36,6 +36,18 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     float fasterFallDelay = .2f;
 
+    [SerializeField]
+    LayerMask attackable;
+
+    [SerializeField]
+    int attackStrentgh = 5;
+
+    [SerializeField]
+    float attackRadius = 5.0f;
+
+    [SerializeField]
+    int playerHealth = 5;
+
     private void Awake()
     {
         rb = this.GetComponent<Rigidbody>();
@@ -47,6 +59,7 @@ public class TPCharacterController : MonoBehaviour
     private void OnEnable()
     {
         playerActionsAsset.Character.Jump.started += DoJump;
+        playerActionsAsset.Character.Attack.started += DoAttack;
         move = playerActionsAsset.Character.Movement;
         playerActionsAsset.Character.Enable();
     }
@@ -54,6 +67,7 @@ public class TPCharacterController : MonoBehaviour
     private void OnDisable()
     {
         playerActionsAsset.Character.Jump.started -= DoJump;
+        playerActionsAsset.Character.Attack.started -= DoAttack;
         playerActionsAsset.Character.Disable();
     }
 
@@ -142,6 +156,19 @@ public class TPCharacterController : MonoBehaviour
         }
     }
 
+    private void DoAttack(InputAction.CallbackContext obj)
+    {
+        Debug.Log("attack");
+        Collider[] hits = Physics.OverlapSphere(transform.position, attackRadius, attackable);
+
+        foreach (Collider col in hits)
+        {
+            col.GetComponent<Enemy>().health-= attackStrentgh;
+            col.GetComponent<Enemy>().CheckDie();
+        }
+        
+    }
+
     //TODO: Add double jump logic here
     //Also remove ability to stick to walls
     //And fix camera problems
@@ -161,6 +188,8 @@ public class TPCharacterController : MonoBehaviour
             return false;
         }
     }
+
+    
 
     //This will have to be checked in some sort of update function to always keep track of if the player is on the ground or not
     IEnumerator CoyoteTimer()
