@@ -3,10 +3,10 @@
     <ui:VisualElement name="Background" class="background" style="height: 100%; width: 100%;">
         <ui:VisualElement name="Column" style="flex-grow: 1; right: auto; left: auto; align-self: center; justify-content: center; align-items: center; align-content: center; margin-top: 10%; width: 30%; height: 100%;">
             <ui:Label text="TITLE" name="Label" style="scale: 5 5; padding-bottom: 30px;" />
-            <ui:Button text="Play" name="PlayButton" class="bubbleButton unity-button" style="width: 75%; height: 18%; margin-bottom: 10px;" />
+            <ui:Button text="Play" name="PlayButton" enabled="true" class="bubbleButton unity-button" style="width: 75%; height: 18%; margin-bottom: 10px;" />
             <ui:Button text="Options" name="OptionsButton" class="bubbleButton unity-button" style="width: 50%; height: 15%; margin-bottom: 8px;" />
             <ui:Button text="Credits" name="CreditsButton" class="bubbleButton unity-button" style="margin-bottom: 8px; width: 50%; height: 15%;" />
-            <ui:Button text="Quit" name="QuitButton" class="bubbleButton" style="width: 30%;" />
+            <ui:Button text="Quit" name="QuitButton" class="bubbleButton" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

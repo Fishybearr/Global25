@@ -16,7 +16,7 @@
 }
 
 .bubbleButton:hover {
+    transition-property: scale;
+    transition-duration: 0.08s;
     scale: 1.1 1.1;
-    transition-property: width;
-    transition-duration: 0.25ms;
 }
