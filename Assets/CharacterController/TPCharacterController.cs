@@ -47,8 +47,8 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     float attackRadius = 5.0f;
 
-    [SerializeField]
-    int playerHealth = 5;
+   
+    public int playerHealth = 5;
 
     public int colletablCount;
 

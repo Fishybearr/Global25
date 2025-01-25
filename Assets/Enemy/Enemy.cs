@@ -88,14 +88,11 @@ public class Enemy : MonoBehaviour
 
     public void CheckDie()
     {
-        if(health <= 0) 
+        if (health <= 0)
         {
-            gameObject.SetActive(false);
-        }
-    }
 
-    IEnumerator AttackDelay() 
-    {
-        yield return new WaitForSeconds(attackDelay);
+            //gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
     }
 }
