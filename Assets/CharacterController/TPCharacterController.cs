@@ -28,20 +28,14 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     private float fallDelay = .2f;
 
-    private float rbDamping;
-    private float rbMass;
-
     private bool coyoteTime = false;
+    private bool canCoyote = true;
 
     private void Awake()
     {
         rb = this.GetComponent<Rigidbody>();
 
         playerActionsAsset = new CharterControllerInput();
-
-        rbDamping = rb.linearDamping;
-        rbMass = rb.mass;
-
 
     }
 
@@ -60,7 +54,22 @@ public class TPCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-       
+        //check if grounded
+        if (IsGrounded())
+        {
+            Physics.gravity = new Vector3(0, -9.8f, 0);
+            canCoyote = true;
+        }
+        else
+        {
+            if (canCoyote)
+            {
+                canCoyote = false;
+                StartCoroutine(CoyoteTimer());
+            }
+
+            StartCoroutine(FallFaster());
+        }
 
         forceDirection += move.ReadValue<Vector2>().x * GetCameraRight(playerCamera) * movementForce;
         forceDirection += move.ReadValue<Vector2>().y * GetCameraForward(playerCamera) * movementForce;
@@ -68,7 +77,7 @@ public class TPCharacterController : MonoBehaviour
         rb.AddForce(forceDirection, ForceMode.Impulse);
         forceDirection = Vector3.zero;
 
-        if (rb.linearVelocity.y < 0f) 
+        if (rb.linearVelocity.y < 0f)
         {
             rb.linearVelocity -= Vector3.down * Physics.gravity.y * Time.fixedDeltaTime;
         }
@@ -80,7 +89,7 @@ public class TPCharacterController : MonoBehaviour
         {
             rb.linearVelocity = horizontalVelocity.normalized * maxSpeed + Vector3.up * rb.linearVelocity.y;
         }
-        else 
+        else
         {
             rb.angularVelocity = Vector3.zero;
         }
@@ -94,9 +103,9 @@ public class TPCharacterController : MonoBehaviour
         direction.y = 0f;
 
 
-        if (move.ReadValue<Vector2>().sqrMagnitude > 0.1f && direction.sqrMagnitude > 0.1f) 
+        if (move.ReadValue<Vector2>().sqrMagnitude > 0.1f && direction.sqrMagnitude > 0.1f)
         {
-            this.rb.rotation = Quaternion.LookRotation(direction,Vector3.up);
+            this.rb.rotation = Quaternion.LookRotation(direction, Vector3.up);
         }
     }
 
@@ -114,13 +123,14 @@ public class TPCharacterController : MonoBehaviour
         return right.normalized;
     }
 
-    private void DoJump(InputAction.CallbackContext obj) 
+    private void DoJump(InputAction.CallbackContext obj)
     {
         //Debug.Log("Jumped Pressed");
-        if (IsGrounded())
+        if (IsGrounded() || coyoteTime)
         {
-           // coyoteTime = false;
+            coyoteTime = false;
             forceDirection += Vector3.up * jumpForce;
+            StartCoroutine(FallFaster());
         }
     }
 
@@ -132,10 +142,7 @@ public class TPCharacterController : MonoBehaviour
         Ray ray = new Ray(this.transform.position + Vector3.up * 0.25f, Vector3.down);
         if (Physics.Raycast(ray, out RaycastHit hit, 2.0f)) 
         {
-           // Debug.Log("Grounded");
-           // rb.linearDamping = rbDamping;
-            // rb.mass = rbMass;
-           // StartCoroutine(FallFaster());
+    
             return true;
            
            
@@ -151,7 +158,7 @@ public class TPCharacterController : MonoBehaviour
     IEnumerator CoyoteTimer()
     {
         coyoteTime = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.2f);
         coyoteTime = false;
     }
 
@@ -159,11 +166,9 @@ public class TPCharacterController : MonoBehaviour
     IEnumerator FallFaster() 
     {
         yield return new WaitForSeconds(fallDelay);
-       
-        rb.linearDamping = .25f;
-       // rb.mass = rbMass * 5;
-      //  yield return new WaitForSeconds(2);
-      //  rb.linearDamping = rbDamping;
+
+        //rb.linearDamping = .25f;
+        Physics.gravity = new Vector3(0, -9.8f * 2.0f, 0);
 
     }
 
