@@ -177,8 +177,8 @@ public partial class @CharterControllerInput: IInputActionCollection2, IDisposab
                 },
                 {
                     ""name"": """",
-                    ""id"": ""52e85c21-7697-43bf-9eb5-35fada9608de"",
-                    ""path"": ""<Gamepad>/rightStick"",
+                    ""id"": ""07b22b6f-252c-4154-8896-23f9c1c725dd"",
+                    ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -188,8 +188,8 @@ public partial class @CharterControllerInput: IInputActionCollection2, IDisposab
                 },
                 {
                     ""name"": """",
-                    ""id"": ""07b22b6f-252c-4154-8896-23f9c1c725dd"",
-                    ""path"": ""<Mouse>/delta"",
+                    ""id"": ""52e85c21-7697-43bf-9eb5-35fada9608de"",
+                    ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

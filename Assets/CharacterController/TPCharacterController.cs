@@ -29,6 +29,9 @@ public class TPCharacterController : MonoBehaviour
     private float fallDelay = .2f;
 
     private float rbDamping;
+    private float rbMass;
+
+    private bool coyoteTime = false;
 
     private void Awake()
     {
@@ -37,6 +40,7 @@ public class TPCharacterController : MonoBehaviour
         playerActionsAsset = new CharterControllerInput();
 
         rbDamping = rb.linearDamping;
+        rbMass = rb.mass;
 
 
     }
@@ -56,6 +60,8 @@ public class TPCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
+       
+
         forceDirection += move.ReadValue<Vector2>().x * GetCameraRight(playerCamera) * movementForce;
         forceDirection += move.ReadValue<Vector2>().y * GetCameraForward(playerCamera) * movementForce;
 
@@ -110,21 +116,26 @@ public class TPCharacterController : MonoBehaviour
 
     private void DoJump(InputAction.CallbackContext obj) 
     {
-        Debug.Log("Jumped Pressed");
-        if (IsGrounded()) 
+        //Debug.Log("Jumped Pressed");
+        if (IsGrounded())
         {
+           // coyoteTime = false;
             forceDirection += Vector3.up * jumpForce;
         }
     }
 
+    //TODO: Add double jump logic here
+    //Also remove ability to stick to walls
+    //And fix camera problems
     private bool IsGrounded() 
     {
         Ray ray = new Ray(this.transform.position + Vector3.up * 0.25f, Vector3.down);
         if (Physics.Raycast(ray, out RaycastHit hit, 2.0f)) 
         {
            // Debug.Log("Grounded");
-            rb.linearDamping = rbDamping;
-            StartCoroutine(FallFaster());
+           // rb.linearDamping = rbDamping;
+            // rb.mass = rbMass;
+           // StartCoroutine(FallFaster());
             return true;
            
            
@@ -136,11 +147,21 @@ public class TPCharacterController : MonoBehaviour
         }
     }
 
+    //This will have to be checked in some sort of update function to always keep track of if the player is on the ground or not
+    IEnumerator CoyoteTimer()
+    {
+        coyoteTime = true;
+        yield return new WaitForSeconds(1f);
+        coyoteTime = false;
+    }
+
     //TODO: Tweak this to actually work
     IEnumerator FallFaster() 
     {
         yield return new WaitForSeconds(fallDelay);
+       
         rb.linearDamping = .25f;
+       // rb.mass = rbMass * 5;
       //  yield return new WaitForSeconds(2);
       //  rb.linearDamping = rbDamping;
 
