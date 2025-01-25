@@ -25,11 +25,16 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     private Camera playerCamera;
 
-    [SerializeField]
-    private float fallDelay = .2f;
+   
 
     private bool coyoteTime = false;
     private bool canCoyote = true;
+
+    [SerializeField]
+    float coyoteTimeDelay = .2f;
+
+    [SerializeField]
+    float fasterFallDelay = .2f;
 
     private void Awake()
     {
@@ -125,6 +130,9 @@ public class TPCharacterController : MonoBehaviour
 
     private void DoJump(InputAction.CallbackContext obj)
     {
+       
+        canCoyote = false;
+
         //Debug.Log("Jumped Pressed");
         if (IsGrounded() || coyoteTime)
         {
@@ -158,14 +166,14 @@ public class TPCharacterController : MonoBehaviour
     IEnumerator CoyoteTimer()
     {
         coyoteTime = true;
-        yield return new WaitForSeconds(.2f);
+        yield return new WaitForSeconds(coyoteTimeDelay);
         coyoteTime = false;
     }
 
     //TODO: Tweak this to actually work
     IEnumerator FallFaster() 
     {
-        yield return new WaitForSeconds(fallDelay);
+        yield return new WaitForSeconds(fasterFallDelay);
 
         //rb.linearDamping = .25f;
         Physics.gravity = new Vector3(0, -9.8f * 2.0f, 0);
