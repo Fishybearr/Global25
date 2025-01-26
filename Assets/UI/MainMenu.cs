@@ -113,6 +113,7 @@ public class MainMenu : MonoBehaviour
         List<StylePropertyName> properties = new List<StylePropertyName>();
         properties.Add(new StylePropertyName("width"));
         properties.Add(new StylePropertyName("height"));
+        properties.Add(new StylePropertyName("scale"));
         button.style.transitionProperty = new StyleList<StylePropertyName>(properties);
 
         List<TimeValue> durations = new List<TimeValue>();
@@ -125,6 +126,7 @@ public class MainMenu : MonoBehaviour
 
         button.style.width = new StyleLength(new Length(90.0f, LengthUnit.Percent));
         button.style.height = new StyleLength(new Length(90.0f, LengthUnit.Percent));
+        button.style.scale = new StyleScale(new Vector2(1.0f, 1.0f));
     }
 
     private void OnOptionsClosed()
@@ -183,7 +185,7 @@ public class MainMenu : MonoBehaviour
             tempButton.style.transitionTimingFunction = new StyleList<EasingFunction>(easingFunctions);
             tempButton.style.opacity = 1.0f;
             tempButton.style.visibility = new StyleEnum<Visibility>(Visibility.Visible);
-            tempButton.style.scale = new StyleScale(new Vector2(1.0f, 1.0f));
+            tempButton.style.scale = StyleKeyword.Null;
             tempButton.style.width = new StyleLength(new Length(20.0f, LengthUnit.Percent));
             tempButton.style.height = new StyleLength(new Length(12.0f, LengthUnit.Percent));
 
