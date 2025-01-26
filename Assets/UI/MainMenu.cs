@@ -1,5 +1,6 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -27,6 +28,43 @@ public class MainMenu : MonoBehaviour
     private AudioSource _audio;
     
     public GlobalSettings settings;
+    public Camera cam;
+    public GameObject player;
+
+    private bool _menuVisible = true;
+
+    public void ToggleMenu()
+    {
+        if (_menuVisible)
+        {
+            _menuVisible = false;
+            
+            Physics.simulationMode = SimulationMode.FixedUpdate;
+            SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _optionsButton, _creditsButton, _quitButton});
+            _ui.style.visibility = new StyleEnum<Visibility>(Visibility.Hidden);
+            
+            cam.GetComponent<CinemachineBrain>().enabled = true;
+            player.GetComponent<TPCharacterController>().enabled = true;
+        }
+        else
+        {
+            _menuVisible = true;
+            Physics.simulationMode = SimulationMode.Script;
+            cam.GetComponent<CinemachineBrain>().enabled = false;
+            player.GetComponent<TPCharacterController>().enabled = false;
+
+            _playButton.style.transitionProperty = StyleKeyword.Null;
+            _playButton.style.transitionTimingFunction = StyleKeyword.Null;
+            _playButton.style.transitionDuration = StyleKeyword.Null;
+            
+            _playButton.style.opacity = 1.0f;
+            _playButton.style.scale = StyleKeyword.Null;
+            _playButton.style.visibility = Visibility.Visible;
+            
+            SetVisibility(DisplayStyle.Flex, new VisualElement[]{_title, _playButton, _optionsButton, _creditsButton, _quitButton});
+            _ui.style.visibility = new StyleEnum<Visibility>(Visibility.Visible);
+        }
+    }
     
     private void Awake()
     {
@@ -40,38 +78,60 @@ public class MainMenu : MonoBehaviour
         _playButton = _ui.Q<Button>("PlayButton");
         _playButton.clicked += OnPlayButtonClicked;
         _playButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
-        
+        _playButton.focusable = true;
+        _playButton.Focus();
+
         _optionsButton = _ui.Q<Button>("OptionsButton");
         _optionsButton.clicked += OnOptionsButtonClicked;
         _optionsButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
-        
+        _optionsButton.focusable = true;
+
         _optionsXButton = _ui.Q<Button>("OptionsX");
         _optionsXButton.clicked += OnOptionsClosed;
-        
+        _optionsXButton.focusable = true;
+
         _creditsButton = _ui.Q<Button>("CreditsButton");
         _creditsButton.clicked += OnCreditsButtonClicked;
         _creditsButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
-        
+        _creditsButton.focusable = true;
+
         _creditsXButton = _ui.Q<Button>("CreditsX");
         _creditsXButton.clicked += OnCreditsClosed;
-        
+        _creditsXButton.focusable = true;
+
         _quitButton = _ui.Q<Button>("QuitButton");
         _quitButton.clicked += OnQuitButtonClicked;
-        
+        _quitButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
+
         _ui.Q<Slider>("MusicVolume").dataSource = settings;
         _ui.Q<Slider>("SfxVolume").dataSource = settings;
+
+        cam.GetComponent<CinemachineBrain>().enabled = false;
+        player.GetComponent<TPCharacterController>().enabled = false;
+
+        _ui.RegisterCallback<NavigationCancelEvent>(OnCancelEvent);
+    }
+
+    private void OnCancelEvent(NavigationCancelEvent evt)
+    {
+        Debug.Log(_ui.focusController.focusedElement);
+        if (_ui.focusController.focusedElement.Equals(_creditsButton))
+        {
+            OnCreditsClosed();
+        }
+        else if(_ui.focusController.focusedElement.Equals(_optionsButton))
+        {
+            OnOptionsClosed();
+        }
     }
 
     private void OnPlayButtonClicked()
     {
-        Debug.Log("Play button clicked");
         ButtonPopAnimation(_playButton);
     }
     
     private void OnOptionsButtonClicked()
     {
-        Debug.Log("Options Button clicked");
-
         _optionsButton.text = "";
         GrowBubbleAnimation(_optionsButton);
         _optionsXButton.style.display = DisplayStyle.Flex;
@@ -81,7 +141,10 @@ public class MainMenu : MonoBehaviour
         foreach (VisualElement child in _optionsButton.Children())
         {
             child.style.display = DisplayStyle.Flex;
+            child.focusable = true;
         }
+
+        _optionsButton.Children().First().Focus();
     }
 
     private void ButtonPopAnimation(Button button)
@@ -109,13 +172,12 @@ public class MainMenu : MonoBehaviour
 
     private void OnCreditsButtonClicked()
     {
-        Debug.Log("Credits Button clicked");
-
         _creditsButton.text = "Main Dev Team:\nAaron Radliff\nJeremiah Opare\nRae Benkovich\nWolfgang Groetz\n\nMusic:\nGarrison Bouchard-Ferdon\n\nFont:\nDynaPuff Font from Google Fonts";
         
         GrowBubbleAnimation(_creditsButton);
         
         _creditsXButton.style.display = DisplayStyle.Flex;
+        _creditsXButton.focusable = true;
         SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _optionsButton, _quitButton});
     }
 
@@ -142,15 +204,12 @@ public class MainMenu : MonoBehaviour
 
     private void OnOptionsClosed()
     {
-        Debug.Log("Options Closed");
-        
         ButtonPopAnimation(_optionsButton);
+        Debug.Log(_ui.focusController.focusedElement);
     }
     
     private void OnCreditsClosed()
     {
-        Debug.Log("Credits Closed");
-        
         ButtonPopAnimation(_creditsButton);
     }
 
@@ -173,18 +232,15 @@ public class MainMenu : MonoBehaviour
         {
             PlayPopSound();
             
-            Debug.Log(endEvent.target.ToString());
             Button tempButton = endEvent.currentTarget.ConvertTo<Button>();
-            if (tempButton.Equals(_playButton))
+            if (tempButton.Equals(_playButton) && _menuVisible)
             {
-                SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _optionsButton, _creditsButton, _quitButton});
-                _ui.style.visibility = new StyleEnum<Visibility>(Visibility.Hidden); ;
+                Debug.Log("From Callback");
+                ToggleMenu();
                 return;
             }
             
             tempButton.text = endEvent.target.ToString().Substring(7, endEvent.target.ToString().IndexOf('B', 7) - 7);
-            
-            Debug.Log("TEXT " + tempButton.text);
             
             List<TimeValue> durations = new List<TimeValue>();
             durations.Add(new TimeValue(0.0f, TimeUnit.Second));
