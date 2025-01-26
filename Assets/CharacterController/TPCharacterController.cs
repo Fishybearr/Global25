@@ -51,6 +51,15 @@ public class TPCharacterController : MonoBehaviour
 
     public int colletablCount;
 
+    [SerializeField]
+    Animator anim;
+
+    [SerializeField]
+    bool canAttack = true;
+
+    [SerializeField]
+    ParticleSystem bubbles;
+
 
     private void Awake()
     {
@@ -77,6 +86,7 @@ public class TPCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        anim.SetFloat("Magnitude", rb.linearVelocity.magnitude);
         //check if grounded
         if (IsGrounded())
         {
@@ -173,6 +183,11 @@ public class TPCharacterController : MonoBehaviour
 
     private void DoAttack(InputAction.CallbackContext obj)
     {
+        if (canAttack == true) 
+        {
+            StartCoroutine(AttackDelay());
+        }
+        
         Debug.Log("attack");
         Collider[] hits = Physics.OverlapSphere(transform.position, attackRadius, attackable);
 
@@ -192,7 +207,7 @@ public class TPCharacterController : MonoBehaviour
         Ray ray = new Ray(this.transform.position + Vector3.up * 0.25f, Vector3.down);
         if (Physics.Raycast(ray, out RaycastHit hit, 2.0f)) 
         {
-    
+            anim.SetBool("IsGrounded", true);
             return true;
            
            
@@ -201,6 +216,7 @@ public class TPCharacterController : MonoBehaviour
         {
             //Debug.Log("Not Grounded");
             //coyoteTime = true;
+            anim.SetBool("IsGrounded", false);
             return false;
         }
     }
@@ -227,6 +243,18 @@ public class TPCharacterController : MonoBehaviour
         //rb.linearDamping = .25f;
         Physics.gravity = new Vector3(0, -9.8f * 3.0f, 0);
 
+    }
+
+
+    IEnumerator AttackDelay() 
+    {
+        bubbles.Play();
+        canAttack = false;
+        anim.SetBool("attack", true);
+        yield return new WaitForSeconds(.2f);
+        bubbles.Stop();
+        anim.SetBool("attack", false);
+        canAttack = true;
     }
 
 }

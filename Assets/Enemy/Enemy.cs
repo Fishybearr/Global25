@@ -33,6 +33,8 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     Transform playerTransform;
 
+  
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -90,8 +92,6 @@ public class Enemy : MonoBehaviour
     {
         if (health <= 0)
         {
-
-            //gameObject.SetActive(false);
             Destroy(gameObject);
         }
     }

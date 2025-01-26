@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Attack : MonoBehaviour
 {
@@ -7,6 +8,12 @@ public class Attack : MonoBehaviour
 
     [SerializeField]
     bool canAttack = false;
+
+    [SerializeField]
+    GameObject gameOverScreen;
+
+    [SerializeField]
+    Button resetButton;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,7 +46,14 @@ public class Attack : MonoBehaviour
             if(characterController.playerHealth <= 0) 
             {
                 //Game over
-                characterController.gameObject.SetActive(false);
+
+                //activate game over
+                gameOverScreen.SetActive(true);
+
+                //change anim state
+                characterController.GetComponent<Animator>().SetBool("IsDead", true);
+                characterController.enabled = false;
+                resetButton.Select();
             }
         }
     }
