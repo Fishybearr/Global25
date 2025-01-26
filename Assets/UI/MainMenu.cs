@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class MainMenu : MonoBehaviour
 {
     public float popAnimationDuration = 0.1f;
-    public float buttonDisableDuration = 0.1f;
+
+    public AudioClip[] popSounds;
     
     private VisualElement _ui;
 
@@ -14,14 +17,19 @@ public class MainMenu : MonoBehaviour
 
     private Button _playButton;
     private Button _optionsButton;
+    private Button _optionsXButton;
+    
     private Button _creditsButton;
     private Button _creditsXButton;
     
     private Button _quitButton;
     
+    private AudioSource _audio;
+    
     private void Awake()
     {
         _ui = GetComponent<UIDocument>().rootVisualElement;
+        _audio = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -29,16 +37,21 @@ public class MainMenu : MonoBehaviour
         _title = _ui.Q<Label>("Title");
         _playButton = _ui.Q<Button>("PlayButton");
         _playButton.clicked += OnPlayButtonClicked;
+        _playButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
         
         _optionsButton = _ui.Q<Button>("OptionsButton");
         _optionsButton.clicked += OnOptionsButtonClicked;
+        _optionsButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
+        
+        _optionsXButton = _ui.Q<Button>("OptionsX");
+        _optionsXButton.clicked += OnOptionsClosed;
         
         _creditsButton = _ui.Q<Button>("CreditsButton");
         _creditsButton.clicked += OnCreditsButtonClicked;
+        _creditsButton.RegisterCallback<TransitionEndEvent>(OnPopTransitionEnd);
         
         _creditsXButton = _ui.Q<Button>("CreditsX");
         _creditsXButton.clicked += OnCreditsClosed;
-        _creditsButton.RegisterCallback<TransitionEndEvent>(OnCreditsPopTransitionEnd);
         
         _quitButton = _ui.Q<Button>("QuitButton");
         _quitButton.clicked += OnQuitButtonClicked;
@@ -47,13 +60,17 @@ public class MainMenu : MonoBehaviour
     private void OnPlayButtonClicked()
     {
         Debug.Log("Play button clicked");
-        PlayButtonPopAnimation(_playButton);
+        ButtonPopAnimation(_playButton);
     }
     
     private void OnOptionsButtonClicked()
     {
         Debug.Log("Options Button clicked");
-        ButtonPopAnimation(_optionsButton);
+        
+        GrowBubbleAnimation(_optionsButton);
+        _optionsXButton.style.display = DisplayStyle.Flex;
+        
+        SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _creditsButton, _quitButton});
     }
 
     private void ButtonPopAnimation(Button button)
@@ -79,50 +96,44 @@ public class MainMenu : MonoBehaviour
 
     }
 
-    private void PlayButtonPopAnimation(Button button)
-    {
-        List<StylePropertyName> properties = new List<StylePropertyName>();
-        properties.Add(new StylePropertyName("visibility"));
-        _ui.style.transitionProperty = new StyleList<StylePropertyName>(properties);
-        
-        List<TimeValue> durations = new List<TimeValue>();
-        durations.Add(new TimeValue(popAnimationDuration, TimeUnit.Second));
-        _ui.style.transitionDuration = new StyleList<TimeValue>(durations);
-        
-        List<EasingFunction> easingFunctions = new List<EasingFunction>();
-        easingFunctions.Add(new EasingFunction(EasingMode.EaseOut));
-        button.style.transitionTimingFunction = new StyleList<EasingFunction>(easingFunctions);
-        _ui.style.visibility = new StyleEnum<Visibility>(Visibility.Hidden);
-        
-        ButtonPopAnimation(button);
-    }
-
     private void OnCreditsButtonClicked()
     {
         Debug.Log("Credits Button clicked");
 
         _creditsButton.text = "Main Dev Team:\nAaron Radliff\nJeremiah Opare\nRae Benkovich\nWolfgang Groetz\n\nMusic:\nGarrison Bouchard-Ferdon\n\nFont:\nDynaPuff Font from Google Fonts";
         
-        List<StylePropertyName> properties = new List<StylePropertyName>();
-        properties.Add(new StylePropertyName("width"));
-        properties.Add(new StylePropertyName("height"));
-        _creditsButton.style.transitionProperty = new StyleList<StylePropertyName>(properties);
-
-        List<TimeValue> durations = new List<TimeValue>();
-        durations.Add(new TimeValue(0.5f, TimeUnit.Second));
-        _creditsButton.style.transitionDuration = new StyleList<TimeValue>(durations);
-
-        List<EasingFunction> easingFunctions = new List<EasingFunction>();
-        easingFunctions.Add(new EasingFunction(EasingMode.EaseIn));
-        _creditsButton.style.transitionTimingFunction = new StyleList<EasingFunction>(easingFunctions);
-
-        _creditsButton.style.width = new StyleLength(new Length(90.0f, LengthUnit.Percent));
-        _creditsButton.style.height = new StyleLength(new Length(90.0f, LengthUnit.Percent));
+        GrowBubbleAnimation(_creditsButton);
         
         _creditsXButton.style.display = DisplayStyle.Flex;
         SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _optionsButton, _quitButton});
     }
 
+    private void GrowBubbleAnimation(Button button)
+    {
+        List<StylePropertyName> properties = new List<StylePropertyName>();
+        properties.Add(new StylePropertyName("width"));
+        properties.Add(new StylePropertyName("height"));
+        button.style.transitionProperty = new StyleList<StylePropertyName>(properties);
+
+        List<TimeValue> durations = new List<TimeValue>();
+        durations.Add(new TimeValue(0.5f, TimeUnit.Second));
+        button.style.transitionDuration = new StyleList<TimeValue>(durations);
+
+        List<EasingFunction> easingFunctions = new List<EasingFunction>();
+        easingFunctions.Add(new EasingFunction(EasingMode.EaseOut));
+        button.style.transitionTimingFunction = new StyleList<EasingFunction>(easingFunctions);
+
+        button.style.width = new StyleLength(new Length(90.0f, LengthUnit.Percent));
+        button.style.height = new StyleLength(new Length(90.0f, LengthUnit.Percent));
+    }
+
+    private void OnOptionsClosed()
+    {
+        Debug.Log("Options Closed");
+        
+        ButtonPopAnimation(_optionsButton);
+    }
+    
     private void OnCreditsClosed()
     {
         Debug.Log("Credits Closed");
@@ -138,29 +149,59 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    private void OnCreditsPopTransitionEnd(TransitionEndEvent endEvent)
+    private void PlayPopSound()
     {
-        if (endEvent.target == _creditsButton && endEvent.stylePropertyNames.Contains("opacity") && _creditsButton.style.opacity.value < 1.0f)
+        _audio.PlayOneShot(popSounds[Random.Range(0, popSounds.Length)], _audio.volume);
+    }
+
+    private void OnPopTransitionEnd(TransitionEndEvent endEvent)
+    {
+        if (endEvent.stylePropertyNames.Contains("opacity"))
         {
+            PlayPopSound();
+            
             Debug.Log(endEvent.target.ToString());
-            _creditsButton.text = "Credits";
+            Button tempButton = endEvent.currentTarget.ConvertTo<Button>();
+            if (tempButton.Equals(_playButton))
+            {
+                SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _optionsButton, _creditsButton, _quitButton});
+                _ui.style.visibility = new StyleEnum<Visibility>(Visibility.Hidden); ;
+                return;
+            }
+            
+            tempButton.text = endEvent.target.ToString().Substring(7, endEvent.target.ToString().IndexOf('B', 7) - 7);
+            
+            Debug.Log("TEXT " + tempButton.text);
             
             List<TimeValue> durations = new List<TimeValue>();
             durations.Add(new TimeValue(0.0f, TimeUnit.Second));
-            _creditsButton.style.transitionDuration = new StyleList<TimeValue>(durations);
+            tempButton.style.transitionDuration = new StyleList<TimeValue>(durations);
 
             List<EasingFunction> easingFunctions = new List<EasingFunction>();
             easingFunctions.Add(new EasingFunction(EasingMode.Ease));
             
-            _creditsButton.style.transitionTimingFunction = new StyleList<EasingFunction>(easingFunctions);
-            _creditsButton.style.opacity = 1.0f;
-            _creditsButton.style.visibility = new StyleEnum<Visibility>(Visibility.Visible);
-            _creditsButton.style.scale = new StyleScale(new Vector2(1.0f, 1.0f));
-            _creditsButton.style.width = new StyleLength(new Length(20.0f, LengthUnit.Percent));
-            _creditsButton.style.height = new StyleLength(new Length(12.0f, LengthUnit.Percent));
+            tempButton.style.transitionTimingFunction = new StyleList<EasingFunction>(easingFunctions);
+            tempButton.style.opacity = 1.0f;
+            tempButton.style.visibility = new StyleEnum<Visibility>(Visibility.Visible);
+            tempButton.style.scale = new StyleScale(new Vector2(1.0f, 1.0f));
+            tempButton.style.width = new StyleLength(new Length(20.0f, LengthUnit.Percent));
+            tempButton.style.height = new StyleLength(new Length(12.0f, LengthUnit.Percent));
+
+            if (tempButton.Equals(_creditsButton))
+            {
+                _creditsXButton.style.display = DisplayStyle.None;
+            }
+            else if(tempButton.Equals(_optionsButton))
+            {
+                _optionsXButton.style.display = DisplayStyle.None;
+            }
+
+            List<VisualElement> otherButtons = new List<VisualElement>
+                { _title, _playButton, _optionsButton, _creditsButton, _quitButton };
             
-            _creditsXButton.style.display = DisplayStyle.None;
-            SetVisibility(DisplayStyle.Flex, new VisualElement[]{_title, _playButton, _optionsButton, _quitButton});
+            otherButtons.Remove(tempButton);
+            
+            SetVisibility(DisplayStyle.Flex, otherButtons.ToArray());
         }
     }
 
