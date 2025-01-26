@@ -60,6 +60,10 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     ParticleSystem bubbles;
 
+   
+    public bool Boss = false;
+
+
     public MainMenu menu;
 
     private void OnMenu(InputAction.CallbackContext ctx)
@@ -67,6 +71,7 @@ public class TPCharacterController : MonoBehaviour
         Debug.Log("OnMenu");
         menu.ToggleMenu();
     }
+
 
     private void Awake()
     {
@@ -200,8 +205,18 @@ public class TPCharacterController : MonoBehaviour
 
         foreach (Collider col in hits)
         {
-            col.GetComponent<Enemy>().health-= attackStrentgh;
-            col.GetComponent<Enemy>().CheckDie();
+            if (Boss == false)
+            {
+                col.GetComponent<Enemy>().health -= attackStrentgh;
+                col.GetComponent<Enemy>().CheckDie();
+
+            }
+            else 
+            {
+                col.GetComponent<BadGuyFight>().health -= attackStrentgh;
+                col.GetComponent<BadGuyFight>().CheckDie();
+
+            }
         }
         
     }
