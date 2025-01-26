@@ -64,12 +64,21 @@ public class TPCharacterController : MonoBehaviour
     public bool Boss = false;
 
 
+    public MainMenu menu;
+
+    private void OnMenu(InputAction.CallbackContext ctx)
+    {
+        Debug.Log("OnMenu");
+        menu.ToggleMenu();
+    }
+
+
     private void Awake()
     {
         rb = this.GetComponent<Rigidbody>();
 
         playerActionsAsset = new CharterControllerInput();
-
+        playerActionsAsset.Character.Menu.started += OnMenu;
     }
 
     private void OnEnable()
