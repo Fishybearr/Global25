@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class BadGuyFight : MonoBehaviour
 {
@@ -32,6 +33,8 @@ public class BadGuyFight : MonoBehaviour
 
     [SerializeField]
     Animator anim;
+
+    public bool Boss = false;
 
 
 
@@ -94,7 +97,8 @@ public class BadGuyFight : MonoBehaviour
         if (health <= 0)
         {
             //start end game animation
-            Destroy(gameObject);
+            SceneManager.LoadScene(1);
+            //Destroy(gameObject);
         }
     }
 }

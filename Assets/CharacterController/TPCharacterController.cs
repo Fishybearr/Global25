@@ -60,6 +60,9 @@ public class TPCharacterController : MonoBehaviour
     [SerializeField]
     ParticleSystem bubbles;
 
+   
+    public bool Boss = false;
+
 
     private void Awake()
     {
@@ -193,8 +196,18 @@ public class TPCharacterController : MonoBehaviour
 
         foreach (Collider col in hits)
         {
-            col.GetComponent<Enemy>().health-= attackStrentgh;
-            col.GetComponent<Enemy>().CheckDie();
+            if (Boss == false)
+            {
+                col.GetComponent<Enemy>().health -= attackStrentgh;
+                col.GetComponent<Enemy>().CheckDie();
+
+            }
+            else 
+            {
+                col.GetComponent<BadGuyFight>().health -= attackStrentgh;
+                col.GetComponent<BadGuyFight>().CheckDie();
+
+            }
         }
         
     }
