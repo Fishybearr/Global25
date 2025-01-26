@@ -51,13 +51,20 @@ public class TPCharacterController : MonoBehaviour
 
     public int colletablCount;
 
+    public MainMenu menu;
+
+    private void OnMenu(InputAction.CallbackContext ctx)
+    {
+        Debug.Log("OnMenu");
+        menu.ToggleMenu();
+    }
 
     private void Awake()
     {
         rb = this.GetComponent<Rigidbody>();
 
         playerActionsAsset = new CharterControllerInput();
-
+        playerActionsAsset.Character.Menu.started += OnMenu;
     }
 
     private void OnEnable()

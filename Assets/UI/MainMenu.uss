@@ -27,3 +27,9 @@
     transition-duration: 0.08s;
     scale: 1.1 1.1;
 }
+
+.bubbleButton:focus {
+    transition-property: scale;
+    transition-duration: 0.08s;
+    scale: 1.1 1.1;
+}
