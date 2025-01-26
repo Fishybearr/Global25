@@ -93,6 +93,7 @@ public class BadGuyFight : MonoBehaviour
     {
         if (health <= 0)
         {
+            //start end game animation
             Destroy(gameObject);
         }
     }
