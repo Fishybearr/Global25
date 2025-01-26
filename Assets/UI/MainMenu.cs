@@ -26,6 +26,8 @@ public class MainMenu : MonoBehaviour
     
     private AudioSource _audio;
     
+    public GlobalSettings settings;
+    
     private void Awake()
     {
         _ui = GetComponent<UIDocument>().rootVisualElement;
@@ -55,6 +57,9 @@ public class MainMenu : MonoBehaviour
         
         _quitButton = _ui.Q<Button>("QuitButton");
         _quitButton.clicked += OnQuitButtonClicked;
+        
+        _ui.Q<Slider>("MusicVolume").dataSource = settings;
+        //_ui.Q<Slider>("SfxVolume").dataSource = settings.sfxVolume;
     }
 
     private void OnPlayButtonClicked()
@@ -66,11 +71,17 @@ public class MainMenu : MonoBehaviour
     private void OnOptionsButtonClicked()
     {
         Debug.Log("Options Button clicked");
-        
+
+        _optionsButton.text = "";
         GrowBubbleAnimation(_optionsButton);
         _optionsXButton.style.display = DisplayStyle.Flex;
         
         SetVisibility(DisplayStyle.None, new VisualElement[]{_title, _playButton, _creditsButton, _quitButton});
+
+        foreach (VisualElement child in _optionsButton.Children())
+        {
+            child.style.display = DisplayStyle.Flex;
+        }
     }
 
     private void ButtonPopAnimation(Button button)
@@ -195,7 +206,10 @@ public class MainMenu : MonoBehaviour
             }
             else if(tempButton.Equals(_optionsButton))
             {
-                _optionsXButton.style.display = DisplayStyle.None;
+                foreach (VisualElement child in _optionsButton.Children())
+                {
+                    child.style.display = DisplayStyle.None;
+                }
             }
 
             List<VisualElement> otherButtons = new List<VisualElement>
