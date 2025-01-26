@@ -59,7 +59,7 @@ public class MainMenu : MonoBehaviour
         _quitButton.clicked += OnQuitButtonClicked;
         
         _ui.Q<Slider>("MusicVolume").dataSource = settings;
-        //_ui.Q<Slider>("SfxVolume").dataSource = settings.sfxVolume;
+        _ui.Q<Slider>("SfxVolume").dataSource = settings;
     }
 
     private void OnPlayButtonClicked()
@@ -164,7 +164,7 @@ public class MainMenu : MonoBehaviour
 
     private void PlayPopSound()
     {
-        _audio.PlayOneShot(popSounds[Random.Range(0, popSounds.Length)], _audio.volume);
+        _audio.PlayOneShot(popSounds[Random.Range(0, popSounds.Length)], settings.sfxVolume);
     }
 
     private void OnPopTransitionEnd(TransitionEndEvent endEvent)
